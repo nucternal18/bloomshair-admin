@@ -1,0 +1,166 @@
+import { useState, useEffect, createContext } from 'react';
+import axios from 'axios';
+import { parseCookies } from 'nookies';
+
+export const OrderContext = createContext();
+
+const OrderContextProvider = ({ children }) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [order, setOrder] = useState({});
+  const [orders, setOrders] = useState([]);
+
+  const createOrder = async (order) => {
+    try {
+      setLoading(true);
+
+      const userInfo = parseCookies(null, 'userInfo');
+
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      const { data } = await axios.post(`/api/orders`, order, config);
+
+      setLoading(false);
+      setSuccess(true);
+      setOrder(data);
+    } catch (error) {
+      setLoading(false);
+      const err =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : { message: 'Unable to create order' };
+      setError(err);
+    }
+  };
+
+  const getOrderDetails = async (id) => {
+    try {
+      setLoading(true);
+
+      const userInfo = parseCookies(null, 'userInfo');
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      const { data } = await axios.get(`/api/orders/${id}`, config);
+
+      setLoading(false);
+      setOrder(data);
+    } catch (error) {
+      setLoading(false);
+      const err =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : { message: 'Unable to fetch order details' };
+      setError(err);
+    }
+  };
+
+  const payOrder = async (orderId, paymentResult) => {
+    try {
+      setLoading(true);
+
+      const userInfo = parseCookies(null, 'userInfo');
+
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      await axios.put(`/api/orders/${orderId}/pay`, paymentResult, config);
+
+      setLoading(false);
+      setSuccess(true);
+    } catch (error) {
+      setLoading(false);
+      const err =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : { message: 'Unable to complete payment' };
+      setError(err);
+    }
+  };
+
+  const listOrders = async () => {
+    try {
+      setLoading(true);
+
+      const userInfo = parseCookies(null, 'userInfo');
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      const { data } = await axios.get(`/api/orders`, config);
+
+      setLoading(false);
+      setOrders(data);
+    } catch (error) {
+      setLoading(false);
+      const err =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : { message: 'Unable to fetch products' };
+      setError(err);
+    }
+  };
+
+  const orderDelivery = async (order) => {
+    try {
+      setLoading(true);
+
+      const userInfo = parseCookies(null, 'userInfo');
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      await axios.put(`/api/orders/${order._id}/deliver`, {}, config);
+
+      setLoading(false);
+      setSuccess(true);
+    } catch (error) {
+      setLoading(false);
+      const err =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : { message: 'Unable to fetch products' };
+      setError(err);
+    }
+  };
+  return (
+    <OrderContext.Provider
+      value={{
+        createOrder,
+        getOrderDetails,
+        payOrder,
+        listOrders,
+        orderDelivery,
+        success,
+        loading,
+        error,
+        orders,
+        order
+      }}>
+      {children}
+    </OrderContext.Provider>
+  );
+};
+
+
+export default OrderContextProvider;
