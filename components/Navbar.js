@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image'
+import Image from 'next/image';
+import { MdNotificationsNone } from 'react-icons/md';
 
 // import SideNavbar from "./SideNavbar";
 
@@ -50,11 +51,8 @@ const NavPane = () => {
   };
 
   return (
-    <Navbar className='bg-gray-900 opacity-75 '>
+    <Navbar>
       <Navbar.Container>
-        <Navbar.Brand href='/'>
-          <Image src={'/logo'} alt='blooms hair logo' />
-        </Navbar.Brand>
         <Navbar.Toggler toggle={toggle} isOpen={isOpen} />
         <Navbar.Nav right>
           {navLink.map((link) => (
@@ -70,16 +68,15 @@ const NavPane = () => {
             <Navbar.Link href={link.link}>{link.title}</Navbar.Link>
           </Navbar.Item>
         ))}
- 
       </Navbar.Sidenav>
     </Navbar>
   );
 };
 
 /* Navbar logic */
-const Navbar = ({ bgColor, children }) => (
+const Navbar = ({  children }) => (
   <nav
-    className={`${bgColor} top-0 absolute z-50 w-full flex flex-wrap items-center justify-between px-2 py-3 navbar-expand-lg`}>
+    className={` absolute top-0 left-0 w-full z-10 bg-transparent md:flex-row md:flex-no-wrap md:justify-start flex items-center p-4`}>
     {children}
   </nav>
 );
@@ -95,7 +92,7 @@ Navbar.Container = ({ children }) => {
 /* You can wrap the a tag with Link and pass href to Link if you are using either Create-React-App, Next.js or Gatsby */
 Navbar.Brand = ({ children, href }) => (
   <Link
-    to={href}
+    href={href}
     className='inline-block w-48 p-0 m-0 py-1.5 mr-4 cursor-pointer text-2xl font-bold whitespace-nowrap hover:text-gray-600'>
     <strong>{children}</strong>
   </Link>

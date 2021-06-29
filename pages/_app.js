@@ -8,7 +8,7 @@ function MyApp({ Component, pageProps }) {
     <AuthContextProvider>
       <ProductContextProvider>
         <OrderContextProvider>
-          <Component {...pageProps} />;
+          <Component {...pageProps} />
         </OrderContextProvider>
       </ProductContextProvider>
     </AuthContextProvider>

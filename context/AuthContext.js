@@ -2,7 +2,7 @@ import { useState, useEffect, createContext } from 'react';
 import axios from 'axios';
 import { parseCookies, setCookie, destroyCookie } from 'nookies';
 
-
+const url = 'https://bloomshair.co.uk'
 export const AuthContext = createContext();
 
 const AuthContextProvider = ({ children }) => {
@@ -24,7 +24,7 @@ const AuthContextProvider = ({ children }) => {
       };
 
       const { data } = await axios.post(
-        '/api/users/login',
+        `${url}/api/users/login`,
         { email, password },
         config
       );
@@ -52,7 +52,7 @@ const AuthContextProvider = ({ children }) => {
         };
 
         const { data } = await axios.post(
-          '/api/users',
+          `${url}/api/users`,
           {
             displayName,
             email,
@@ -89,7 +89,7 @@ const AuthContextProvider = ({ children }) => {
         },
       };
 
-      const { data } = await axios.get(`/api/users/${id}`, config);
+      const { data } = await axios.get(`${url}/api/users/${id}`, config);
 
       setLoading(false);
       setUser(data)
@@ -117,7 +117,11 @@ const AuthContextProvider = ({ children }) => {
         },
       };
 
-      const { data } = await axios.put(`/api/users/profile`, user, config);
+      const { data } = await axios.put(
+        `${url}/api/users/profile`,
+        user,
+        config
+      );
 
      setLoading(false);
      setSuccess(true);
@@ -145,7 +149,7 @@ const AuthContextProvider = ({ children }) => {
         },
       };
 
-      const { data } = await axios.get(`/api/users`, config);
+      const { data } = await axios.get(`${url}/api/users`, config);
 
       setLoading(false);
       setUsers(data);
@@ -172,7 +176,7 @@ const AuthContextProvider = ({ children }) => {
         },
       };
 
-      await axios.delete(`/api/users/${id}`, config);
+      await axios.delete(`${url}/api/users/${id}`, config);
 
       setLoading(false);
       setSuccess(true);
@@ -199,7 +203,11 @@ const AuthContextProvider = ({ children }) => {
         },
       };
 
-      const { data } = await axios.put(`/api/users/${user._id}`, user, config);
+      const { data } = await axios.put(
+        `${url}/api/users/${user._id}`,
+        user,
+        config
+      );
 
       setLoading(false);
       setSuccess(true);
