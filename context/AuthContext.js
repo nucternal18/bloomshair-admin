@@ -1,8 +1,8 @@
 import { useState, useEffect, createContext } from 'react';
-import axios from 'axios';
-import { parseCookies, setCookie, destroyCookie } from 'nookies';
+import { useRouter } from 'next/router'
 
-const url = 'https://bloomshair.co.uk'
+import { NEXT_URL } from '../config';
+
 export const AuthContext = createContext();
 
 const AuthContextProvider = ({ children }) => {
@@ -12,225 +12,219 @@ const AuthContextProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
   const [user, setUser] = useState([]);
   const [error, setError] = useState(null);
+  const [requestStatus, setRequestStatus] = useState('');
 
+  const router = useRouter();
+
+  useEffect(() => {
+    if (requestStatus === 'success' || requestStatus === 'error') {
+      const timer = setTimeout(() => {
+        setRequestStatus(null);
+        setError(null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [requestStatus]);
+
+  useEffect(() => {
+    checkUserLoggedIn();
+  }, []);
+
+  // Login User
   const login = async (email, password) => {
     try {
       setLoading(true);
 
-      const config = {
+      const res = await fetch(`${NEXT_URL}/api/auth/login`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-      };
+        body: JSON.stringify({ email, password }),
+      });
 
-      const { data } = await axios.post(
-        `${url}/api/users/login`,
-        { email, password },
-        config
-      );
+      const data = await res.json();
 
-      setLoading(false);
-      setUserInfo(data);
-      setCookie('userInfo', JSON.stringify(data));
+      if (res.ok) {
+        setLoading(false);
+        setUserInfo(data);
+        router.push('/dashboard')
+      } else {
+        setRequestStatus('error');
+        setError(data.message);
+        setError(null);
+      }
     } catch (error) {
+      setRequestStatus('error');
       setLoading(false);
-     const err = error.response && error.response.data.message
-            ? error.response.data.message
-       : {message: 'Login Unsuccessful. Please try again.'}
-      setError(err)
+      const err =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : 'Login Unsuccessful. Please try again.';
+      setError(err);
     }
   };
 
-  const registerAdmin =
-    async (displayName, email, password, role) => {
-      try {
-        setLoading(true);
-        const config = {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        };
-
-        const { data } = await axios.post(
-          `${url}/api/users`,
-          {
-            displayName,
-            email,
-            password,
-            role: role === 'admin' ? role : 'user',
-          },
-          config
-        );
-
-        setLoading(false);
-        setSuccess(true)
-        setUserInfo(data);
-        setCookie('userInfo', JSON.stringify(data));
-      } catch (error) {
-        setLoading(false);
-        const err =
-          error.response && error.response.data.message
-            ? error.response.data.message
-            : { message: 'User registration Unsuccessful. Please try again.' };
-        setError(err);
-      }
-    };
-
-  const getUserDetails = async (id) =>  {
+  // Register User
+  const registerAdmin = async (displayName, email, password, isAdmin) => {
     try {
       setLoading(true);
 
-      const userInfo = parseCookies(null, 'userInfo');
-
-      const config = {
+      const res = await fetch(`${NEXT_URL}/api/auth/register`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${userInfo.token}`,
         },
-      };
+        body: JSON.stringify({
+          displayName,
+          email,
+          password,
+          isAdmin,
+        }),
+      });
 
-      const { data } = await axios.get(`${url}/api/users/${id}`, config);
+      const data = await res.json();
 
-      setLoading(false);
-      setUser(data)
+      if (res.ok) {
+        setLoading(false);
+        setRequestStatus('success');
+        setUserInfo(data);
+        router.push('/dashboard');
+      } else {
+        setRequestStatus('error');
+        setError(data.message);
+        setError(null);
+      }
     } catch (error) {
       setLoading(false);
-     const err =
-       error.response && error.response.data.message
-         ? error.response.data.message
-         : { message: 'Unable to get user details. Please try again.' };
-     setError(err);
+      setRequestStatus('error');
+      const err =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : 'User registration Unsuccessful. Please try again.';
+      setError(err);
     }
   };
 
+  // Check if user is logged in
+  const checkUserLoggedIn = async () => {
+    const res = await fetch(`${NEXT_URL}/api/auth/user`);
+    const data = await res.json();
+
+    if (res.ok) {
+      setUserInfo(data);
+    } else {
+      setUserInfo(null);
+    }
+  };
+
+
+  // Update User details
   const updateUserProfile = async (user) => {
     try {
-     setLoading(true);
-
-     const userInfo = parseCookies(null, 'userInfo');
-
-
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-
-      const { data } = await axios.put(
-        `${url}/api/users/profile`,
-        user,
-        config
-      );
-
-     setLoading(false);
-     setSuccess(true);
-     setUserInfo(data);
-     setCookie('userInfo', JSON.stringify(data));
-    } catch (error) {
-      setLoading(false);
-     const err =
-       error.response && error.response.data.message
-         ? error.response.data.message
-         : { message: 'Unable to update user details. Please try again.' };
-     setError(err);
-    }
-  };
-
-  const listUsers = async () =>  {
-    try {
       setLoading(true);
 
-      const userInfo = parseCookies(null, 'userInfo');
-
-      const config = {
+      const res = await fetch(`${NEXT_URL}/api/auth/updateUser`, {
+        method: 'PUT',
         headers: {
-          Authorization: `Bearer ${userInfo.token}`,
+          'Content-Type': 'application/json',
         },
-      };
+        body: JSON.stringify(user)
+      });
 
-      const { data } = await axios.get(`${url}/api/users`, config);
+      const data = await res.json();
 
-      setLoading(false);
-      setUsers(data);
+      if (res.ok) {
+        setLoading(false);
+        setRequestStatus('success');
+        setUserInfo(data);
+      } else {
+        setRequestStatus('error');
+        setError(data.message);
+        setError(null);
+      }
     } catch (error) {
       setLoading(false);
       const err =
         error.response && error.response.data.message
           ? error.response.data.message
-          : { message: 'Unable to fetch. Please try refreshing the page.' };
+          : 'Unable to update user details. Please try again.';
       setError(err);
     }
   };
 
-  const deleteUser = async (id) =>  {
-    try {
-     setLoading(true);
-
-     const userInfo = parseCookies(null, 'userInfo');
-
-
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-
-      await axios.delete(`${url}/api/users/${id}`, config);
-
-      setLoading(false);
-      setSuccess(true);
-    } catch (error) {
-      setLoading(false);
-     const err =
-       error.response && error.response.data.message
-         ? error.response.data.message
-         : { message: 'Login Unsuccessful. Please try again.' };
-     setError(err);
-    }
-  };
-
-  const editUser = async (user) => {
+  // Delete User
+  const deleteUser = async (id) => {
     try {
       setLoading(true);
 
-      const userInfo = parseCookies(null, 'userInfo');
-
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-
-      const { data } = await axios.put(
-        `${url}/api/users/${user._id}`,
-        user,
-        config
-      );
+      await fetch(`${NEXT_URL}/api/auth/${id}`, {
+        method: 'DELETE',
+      });
 
       setLoading(false);
-      setSuccess(true);
-      setUser(data)
+      setRequestStatus('success');
     } catch (error) {
       setLoading(false);
-     const err =
-       error.response && error.response.data.message
-         ? error.response.data.message
-         : { message: 'Login Unsuccessful. Please try again.' };
-     setError(err);
+      const err =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : 'Unable to delete user. Please try again.';
+      setError(err);
     }
   };
 
-  const logout = () => {
-    destroyCookie('userInfo');
-    destroyCookie('shippingAddress');
-    destroyCookie('paymentMethod');
-    setUserInfo({})
-    setUsers([]);
-    setUser({})
-    setSuccess(false)
-    setError(null)
+  // Edit a User
+  const editUser = async (id, displayName, email, isAdmin) => {
+    try {
+      setLoading(true);
+      const res = await fetch(
+        `${NEXT_URL}/api/auth/${id}`, {
+          method: 'PUT',
+          headers: {
+          'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ displayName, email, isAdmin})
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setLoading(false);
+        setRequestStatus('success');
+        setUser(data);
+      } else {
+        setRequestStatus('error');
+        setError(data.message);
+        setError(null);
+      }
+
+    } catch (error) {
+      setLoading(false);
+      const err =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : 'Unable to update user. Please try again.';
+      setError(err);
+    }
+  };
+
+  // Logout User clear state and cookies
+  const logout = async () => {
+    const res = await fetch(`${NEXT_URL}/api/auth/logout`, {
+      method: 'POST'
+    })
+    if (res.ok) {
+      setUserInfo({});
+      setLoading(false);
+      setUsers([]);
+      setUser({});
+      setSuccess(false);
+      setError(null);
+      router.push('/')
+    }
   };
   return (
     <AuthContext.Provider
@@ -241,11 +235,10 @@ const AuthContextProvider = ({ children }) => {
         loading,
         success,
         error,
+        requestStatus,
         login,
         registerAdmin,
-        getUserDetails,
         updateUserProfile,
-        listUsers,
         deleteUser,
         editUser,
         logout,

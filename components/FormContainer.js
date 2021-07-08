@@ -1,6 +1,6 @@
 const FormContainer = ({ children }) => {
   return (
-    <div className='container flex flex-col mx-auto justify-content item-center'>
+    <div className='container flex flex-col items-center justify-center w-full mx-auto'>
       {children}
     </div>
   );

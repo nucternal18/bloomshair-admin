@@ -1,8 +1,7 @@
 import Head from 'next/head';
 import Sidebar from './Sidebar';
-import NavPane from './Navbar';
 
-const Layout = ({ children, title, color }) => {
+const Layout = ({ children, title }) => {
   return (
     <div className='flex flex-col justify-between h-screen'>
       <Head>
@@ -13,10 +12,7 @@ const Layout = ({ children, title, color }) => {
         <meta name='viewport' content='initial-scale=1.0, width=device-width' />
       </Head>
       <Sidebar />
-      <main className='relative bg-gray-200 md:ml-64'>
-        <NavPane />
-        <div>{children}</div>
-      </main>
+      <main className='relative bg-gray-200 md:ml-64'>{children}</main>
     </div>
   );
 };

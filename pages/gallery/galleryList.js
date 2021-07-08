@@ -1,23 +1,13 @@
-import { useEffect, useContext } from "react";
-import { useRouter } from "next/router";
+
 import { Image } from "react-bootstrap";
 
 import UploadForm from "../../components/UploadForm";
 import useFirestore from "../hooks/useFirestore";
 
-import { AuthContext } from '../../context/AuthContext';
 
-const GalleryListScreen = (props) => {
+const GalleryListScreen = () => {
     const { docs } = useFirestore("images");
-    const router = useRouter()
-const { loading, userInfo, error } = useContext(AuthContext);
-  
 
-  useEffect(() => {
-    if (!userInfo.isAdmin) {
-      router.push("/login");
-    }
-  }, []);
 
   const deleteHandler = (id) => {
     console.log(id);
@@ -82,5 +72,23 @@ const { loading, userInfo, error } = useContext(AuthContext);
     </main>
   );
 };
+
+export async function getServerSideProps(context) {
+  const { token } = cookie.parse(context.req.headers.cookie);
+
+
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { }, // will be passed to the page component as props
+  };
+}
+
 
 export default GalleryListScreen;

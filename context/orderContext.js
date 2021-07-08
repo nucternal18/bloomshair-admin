@@ -1,8 +1,21 @@
-import { useState, useEffect, createContext } from 'react';
+import { useState, createContext } from 'react';
 import axios from 'axios';
 import { parseCookies } from 'nookies';
 
-export const OrderContext = createContext();
+import { API_URL } from '../config';
+
+export const OrderContext = createContext({
+  createOrder: () => {},
+  getOrderDetails: () => {},
+  payOrder: () => {},
+  listOrders: () => {},
+  orderDelivery: () => {},
+  success: false,
+  loading: false,
+  error: null,
+  orders: [],
+  order: {},
+});
 
 const OrderContextProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
@@ -24,7 +37,7 @@ const OrderContextProvider = ({ children }) => {
         },
       };
 
-      const { data } = await axios.post(`/api/orders`, order, config);
+      const { data } = await axios.post(`${API_URL}/api/orders`, order, config);
 
       setLoading(false);
       setSuccess(true);
@@ -51,7 +64,7 @@ const OrderContextProvider = ({ children }) => {
         },
       };
 
-      const { data } = await axios.get(`/api/orders/${id}`, config);
+      const { data } = await axios.get(`${API_URL}/api/orders/${id}`, config);
 
       setLoading(false);
       setOrder(data);
@@ -78,7 +91,11 @@ const OrderContextProvider = ({ children }) => {
         },
       };
 
-      await axios.put(`/api/orders/${orderId}/pay`, paymentResult, config);
+      await axios.put(
+        `${API_URL}/api/orders/${orderId}/pay`,
+        paymentResult,
+        config
+      );
 
       setLoading(false);
       setSuccess(true);
@@ -104,7 +121,7 @@ const OrderContextProvider = ({ children }) => {
         },
       };
 
-      const { data } = await axios.get(`/api/orders`, config);
+      const { data } = await axios.get(`${API_URL}/api/orders`, config);
 
       setLoading(false);
       setOrders(data);
@@ -130,7 +147,7 @@ const OrderContextProvider = ({ children }) => {
         },
       };
 
-      await axios.put(`/api/orders/${order._id}/deliver`, {}, config);
+      await axios.put(`${API_URL}/api/orders/${order._id}/deliver`, {}, config);
 
       setLoading(false);
       setSuccess(true);

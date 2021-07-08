@@ -1,92 +1,127 @@
-import { useEffect, useContext } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/link';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { useContext, useState } from 'react';
+import { FaPlus } from 'react-icons/fa';
+import cookie from 'cookie';
 
-import Spinner from '../components/Spinner';
-import ErrorMessage from '../components/ErrorMessage';
+import Layout from '../../components/Layout';
+import Button from '../../components/Button';
+
+import Notification from '../../components/notification/notification';
+import Table from '../../components/Tables/UserTable';
+
+// context
 import { AuthContext } from '../../context/AuthContext';
 
+import { SERVER_URL } from '../../config';
+import Link from 'next/link';
+
 const UserListScreen = (props) => {
-    const router = useRouter()
-    const { loading, userInfo, error, users, success, deleteUser } = useContext(AuthContext);
- 
+  const { error, deleteUser, requestStatus } =
+    useContext(AuthContext);
+
+  const data = props.users.map((row) => {
+    return {
+      id: row['_id'],
+      image: row['image'],
+      name: row['name'],
+      email: row['email'],
+      isAdmin: row['isAdmin'],
+      actions: row['actions'],
+    };
+  });
+console.log(data)
+  const [message, setMessage] = useState(null);
 
 
-  useEffect(() => {
-    if (!userInfo && !userInfo.isAdmin) {
-     router.push('/login');
-    }
-  }, [ userInfo]);
+  let notification;
+  if (requestStatus === 'success') {
+    notification = {
+      status: 'success',
+      title: 'Success!',
+      message: message,
+    };
+  }
+  if (requestStatus === 'error') {
+    notification = {
+      status: 'error',
+      title: 'Error!',
+      message: error,
+    };
+  }
 
   const deleteHandler = (id) => {
     if (window.confirm('Are you sure?')) {
       deleteUser(id);
+      setMessage('User deleted successfully')
     }
   };
   return (
-    <main className='flex-grow w-full p-2 mx-auto bg-gray-200'>
-      <section className='container px-2 pt-6 pb-8 mx-2 mb-4 bg-white rounded shadow-xl md:mx-auto '>
-        <h2>Users</h2>
-        {loading ? (
-          <Spinner />
-        ) : error ? (
-          <ErrorMessage variant='danger'>{errorUsers}</ErrorMessage>
-        ) : (
-          <table className='flex flex-col flex-no-wrap my-5 overflow-hidden rounded-lg table-auto sm:bg-transparent sm:shadow'>
-            <thead className='text-white'>
-              <tr className='flex flex-col w-full mb-2 bg-teal-400 rounded-l-lg flex-no wrap sm:table-row sm:rounded-none sm:mb-0'>
-                <th className='w-2/5 p-1 text-center'>ID</th>
-                <th className='w-1/5 p-1 text-center'>NAME</th>
-                <th className='w-1/5 p-1 text-center'>EMAIL</th>
-                <th className='w-1/5 p-1 text-center'>ADMIN</th>
-                <th className='w-1/5 p-1 text-center'>DELETE</th>
-              </tr>
-            </thead>
-            <tbody className='fex-col md:flex-1 sm:flex-none '>
-              {users.map((user) => (
-                <tr
-                  key={user._id}
-                  className='flex flex-col w-full mb-2 flex-no wrap sm:table-row sm:rounded-none sm:mb-0'>
-                  <td className='w-2/5 p-3 border border-grey-light hover:bg-gray-100'>
-                    {user._id}
-                  </td>
-                  <td className='w-1/5 p-3 border border-grey-light hover:bg-gray-100'>
-                    {user.name}
-                  </td>
-                  <td className='w-1/5 p-3 border border-grey-light hover:bg-gray-100'>
-                    <a href={`mailto:${user.email}`}>{user.email}</a>
-                  </td>
-                  <td className='w-1/6 p-3 border border-grey-light hover:bg-gray-100'>
-                    {user.isAdmin ? (
-                      <i
-                        className='fas fa-check'
-                        style={{ color: 'green' }}></i>
-                    ) : (
-                      <i className='fas fa-times' style={{ color: 'red' }}></i>
-                    )}
-                  </td>
-                  <td className='w-1/5 p-3 border border-grey-light hover:bg-gray-100'>
-                    <Link href={`/user/${user._id}`}>
-                      <button className='border btn-sm' variant='light'>
-                        <FaEdit />
-                      </button>
-                    </Link>
-                    <button
-                      variant='danger'
-                      className='text-red-500 btn-sm'
-                      onClick={() => deleteHandler(user._id)}>
-                      <FaTrash />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <Layout>
+      <main className='w-full h-screen p-2 mx-auto overflow-auto'>
+        <section className='container px-2 pt-6 pb-8 mb-4 bg-white rounded shadow-xl md:mx-auto '>
+          <div className='flex items-center justify-between mb-4 border-b-4 border-current border-gray-200'>
+            <div>
+              <h1 className='p-5 mt-6 text-5xl font-bold'>Users</h1>
+            </div>
+            <div className=''>
+              <Button color='dark'>
+                <Link href={'/user/createUser'}>
+                  <a className='flex items-center'>
+                    <FaPlus className='mr-1' /> Create User
+                  </a>
+                </Link>
+              </Button>
+            </div>
+          </div>
+          <div className='overflow-hidden'>
+            <Table
+              tableData={data}
+              headingColumns={[
+                'ID',
+                'IMAGE',
+                'NAME',
+                'EMAIL',
+                'ADMIN',
+                'ACTION',
+              ]}
+              deleteHandler={deleteHandler}
+            />
+          </div>
+        </section>
+        {notification && (
+          <Notification
+            status={notification.status}
+            title={notification.title}
+            message={notification.message}
+          />
         )}
-      </section>
-    </main>
+      </main>
+    </Layout>
   );
 };
+
+export async function getServerSideProps(context) {
+  const { token } = cookie.parse(context.req.headers.cookie);
+
+  const res = await fetch(`${SERVER_URL}/api/users/`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const data = await res.json();
+
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { users: data }, // will be passed to the page component as props
+  };
+}
 
 export default UserListScreen;

@@ -1,11 +1,20 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { FaBars, FaTimes, FaNewspaper, FaUserCircle, FaImages, FaShoppingBasket, FaShippingFast } from 'react-icons/fa';
+import { FiLogOut } from 'react-icons/fi';
+
+import { AuthContext } from '../context/AuthContext';
 
 const Sidebar = () => {
   const [collapseShow, setCollapseShow] = useState('hidden');
+
+  const { logout } = useContext(AuthContext);
+  
+  const handleLogout = () => {
+    logout();
+  }
+
 
 
   return (
@@ -90,46 +99,45 @@ const Sidebar = () => {
             {/* Navigation */}
 
             <ul className='flex flex-col list-none md:flex-col md:min-w-full md:mb-4'>
-              <li className='items-center'>
+              <li className='items-center justify-center'>
                 <Link href='/dashboard'>
                   <a
                     href='#pablo'
-                    className='block py-3 text-xs font-bold text-gray-800 uppercase hover:text-gray-600'>
-                    <FaNewspaper />
+                    className='flex flex-row py-3 text-xs font-bold text-gray-800 uppercase hover:text-gray-600'>
+                    <FaNewspaper className='mr-2 text-sm' />
                     Admin Home
                   </a>
                 </Link>
               </li>
 
-              <li className='items-center'>
+              <li className='flex flex-row items-center'>
                 <Link href='/user'>
-                  <a className='block py-3 text-xs font-bold text-gray-800 uppercase hover:text-gray-600'>
-                    <FaUserCircle />
+                  <a className='flex flex-row py-3 text-xs font-bold text-gray-800 uppercase hover:text-gray-600'>
+                    <FaUserCircle className='mr-2 text-sm' />
                     Manage Users
                   </a>
                 </Link>
               </li>
               <li className='items-center'>
                 <Link href='/products'>
-                  <a className='block py-3 text-xs font-bold text-gray-800 uppercase hover:text-gray-600'>
-                    <FaShoppingBasket />
+                  <a className='flex flex-row py-3 text-xs font-bold text-gray-800 uppercase hover:text-gray-600'>
+                    <FaShoppingBasket className='mr-2 text-sm' />
                     Manage Products
                   </a>
                 </Link>
               </li>
               <li className='items-center'>
                 <Link href='/gallery'>
-                  <a className='block py-3 text-xs font-bold text-gray-800 uppercase hover:text-gray-600'>
-                    <FaImages />
+                  <a className='flex flex-row py-3 text-xs font-bold text-gray-800 uppercase hover:text-gray-600'>
+                    <FaImages className='mr-2 text-sm' />
                     Manage Gallery
                   </a>
                 </Link>
               </li>
               <li className='items-center'>
                 <Link href='/orders'>
-                  <a className='block py-3 text-xs font-bold text-gray-800 uppercase hover:text-gray-600'>
-                    <FaShippingFast />{' '}
-                    Manage Orders
+                  <a className='flex flex-row py-3 text-xs font-bold text-gray-800 uppercase hover:text-gray-600'>
+                    <FaShippingFast className='mr-2 text-sm' /> Manage Orders
                   </a>
                 </Link>
               </li>
@@ -137,6 +145,15 @@ const Sidebar = () => {
 
             {/* Divider */}
             <hr className='my-4 md:min-w-full' />
+            <ul className='flex flex-col list-none md:flex-col md:min-w-full md:mb-4'>
+              <li className='items-center'>
+                <button type='button' className='' onClick={handleLogout}>
+                  <p className='flex flex-row py-3 text-xs font-bold text-gray-800 uppercase hover:text-gray-600'>
+                    <FiLogOut className='mr-2 text-sm' /> Logout
+                  </p>
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
       </nav>

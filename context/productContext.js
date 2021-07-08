@@ -1,72 +1,34 @@
-import { useState, useEffect, createContext } from 'react';
-import axios from 'axios';
-import { parseCookies } from 'nookies';
+import { useState, createContext } from 'react';
 
+import { NEXT_URL } from '../config';
 
 export const ProductContext = createContext();
 
 const ProductContextProvider = ({ children }) => {
-  const [products, setProducts] = useState([]);
-  const [product, setProduct] = useState({});
-  const [pages, setPages] = useState();
-  const [page, setPage] = useState();
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-
-  const listProducts = async (keyword = '', pageNumber = '') => {
-    try {
-      setLoading(true);
-
-      const { data } = await axios.get(
-        `/api/products?keyword=${keyword}&pageNumber=${pageNumber}`
-      );
-      setLoading(false);
-      setProducts(data.products);
-      setPages(data.pages);
-      setPage(data.page);
-    } catch (error) {
-      setLoading(false);
-      const err =
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : { message: 'Unable to fetch products' };
-      setError(err);
-    }
-  };
-  const listProductDetails = async (id) => {
-    try {
-      setLoading(true);
-
-      const { data } = await axios.get(`/api/products/${id}`);
-      setLoading(false);
-      setProduct(data);
-    } catch (error) {
-      setLoading(false);
-      const err =
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : { message: 'Unable to fetch product details' };
-      setError(err);
-    }
-  };
+  const [image, setImage] = useState();
+  const [uploading, setUploading] = useState(false);
 
   const createProduct = async () => {
     try {
       setLoading(false);
 
-      const userInfo = parseCookies(null, 'userInfo');
-
-      const config = {
+      await fetch(`${NEXT_URL}/api/products`, {
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${userInfo.token}`,
+          'Content-Type': 'application/json',
         },
-      };
+      });
 
-      const { data } = await axios.post('/api/products', {}, config);
-      setLoading(false);
-      setSuccess(true);
-      setProduct(data);
+      if (response.ok) {
+        setLoading(false);
+        setSuccess(true);
+      } else {
+        setLoading(false);
+      }
     } catch (error) {
       setLoading(false);
       const err =
@@ -77,54 +39,20 @@ const ProductContextProvider = ({ children }) => {
     }
   };
 
-  const createProductReview = async (productId, review) => {
-    try {
-      setLoading(true);
-
-      const userInfo = parseCookies(null, 'userInfo');
-
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-
-      await axios.post(`/api/products/${productId}/reviews`, review, config);
-
-      setLoading(false);
-      setSuccess(true);
-    } catch (error) {
-      setLoading(false);
-      const err =
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : { message: 'Unable to create product review' };
-      setError(err);
-    }
-  };
-
   const updateProduct = async (product) => {
     try {
       setLoading(true);
 
-      const userInfo = parseCookies(null, 'userInfo');
-
-      const config = {
+      await fetch(`${NEXT_URL}/api/products/${product._id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${userInfo.token}`,
         },
-      };
-
-      const { data } = await axios.put(
-        `/api/products/${product._id}`,
-        product,
-        config
-      );
+        body: JSON.stringify(product),
+      });
 
       setLoading(false);
       setSuccess(true);
-      setProduct(data);
     } catch (error) {
       setLoading(false);
       const err =
@@ -138,15 +66,11 @@ const ProductContextProvider = ({ children }) => {
   const deleteProduct = async (id) => {
     try {
       setLoading(true);
-      const userInfo = parseCookies(null, 'userInfo');
 
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
+      await fetch(`${NEXT_URL}/api/products/${id}`, {
+        method: 'DELETE',
+      });
 
-      await axios.delete(`/api/products/${id}`, config);
       setLoading(false);
       setSuccess(true);
     } catch (error) {
@@ -159,40 +83,37 @@ const ProductContextProvider = ({ children }) => {
     }
   };
 
-  const listTopProducts = async () => {
-    try {
-      setLoading(true);
+  const uploadImage = async (base64EncodedImage) => {
+    setUploading(true);
 
-      const { data } = await axios.get(`/api/products/top`);
-      setLoading(false);
-      setProducts(data);
+    try {
+      const response = await fetch(`${NEXT_URL}/api/upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: base64EncodedImage }),
+      });
+      const data = await response.json();
+      setImage(data.url);
+      setUploading(false);
     } catch (error) {
-      setLoading(false);
-      const err =
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : { message: 'Unable to fetch top products' };
-      setError(err);
+      console.error(error);
     }
   };
 
   return (
     <ProductContext.Provider
       value={{
-        listProducts,
-        listProductDetails,
         createProduct,
-        createProductReview,
         updateProduct,
         deleteProduct,
-        listTopProducts,
-        products,
-        product,
-        pages,
-        page,
+        uploadImage,
         success,
         loading,
-        error
+        error,
+        image,
+        uploading,
       }}>
       {children}
     </ProductContext.Provider>
