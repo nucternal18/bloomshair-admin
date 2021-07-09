@@ -45,7 +45,7 @@ const Table = ({ tableData, headingColumns, deleteHandler }) => {
 
                 <td data-heading={'action'}>
                   <button className='mr-4 text-md' variant='light'>
-                    <Link href={`/products/${row.id}`}>
+                    <Link href={`/user/${row.id}`}>
                       <a>
                         <FaEdit />
                       </a>

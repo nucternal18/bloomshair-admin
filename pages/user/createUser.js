@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Button from '../../components/Button';
+import cookie from 'cookie';
 
 //components
 import Layout from '../../components/Layout';

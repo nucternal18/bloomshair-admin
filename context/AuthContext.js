@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext } from 'react';
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/router';
 
 import { NEXT_URL } from '../config';
 
@@ -13,6 +13,8 @@ const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState([]);
   const [error, setError] = useState(null);
   const [requestStatus, setRequestStatus] = useState('');
+  const [image, setImage] = useState();
+  const [uploading, setUploading] = useState(false);
 
   const router = useRouter();
 
@@ -49,7 +51,7 @@ const AuthContextProvider = ({ children }) => {
       if (res.ok) {
         setLoading(false);
         setUserInfo(data);
-        router.push('/dashboard')
+        router.push('/dashboard');
       } else {
         setRequestStatus('error');
         setError(data.message);
@@ -119,7 +121,6 @@ const AuthContextProvider = ({ children }) => {
     }
   };
 
-
   // Update User details
   const updateUserProfile = async (user) => {
     try {
@@ -130,7 +131,7 @@ const AuthContextProvider = ({ children }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(user)
+        body: JSON.stringify(user),
       });
 
       const data = await res.json();
@@ -179,15 +180,13 @@ const AuthContextProvider = ({ children }) => {
   const editUser = async (id, displayName, email, isAdmin) => {
     try {
       setLoading(true);
-      const res = await fetch(
-        `${NEXT_URL}/api/auth/${id}`, {
-          method: 'PUT',
-          headers: {
-          'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ displayName, email, isAdmin})
-        }
-      );
+      const res = await fetch(`${NEXT_URL}/api/auth/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ displayName, email, isAdmin }),
+      });
 
       const data = await res.json();
 
@@ -200,7 +199,6 @@ const AuthContextProvider = ({ children }) => {
         setError(data.message);
         setError(null);
       }
-
     } catch (error) {
       setLoading(false);
       const err =
@@ -211,11 +209,30 @@ const AuthContextProvider = ({ children }) => {
     }
   };
 
+  const uploadImage = async (base64EncodedImage) => {
+    setUploading(true);
+
+    try {
+      const response = await fetch(`${NEXT_URL}/api/upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: base64EncodedImage }),
+      });
+      const data = await response.json();
+      setImage(data.url);
+      setUploading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   // Logout User clear state and cookies
   const logout = async () => {
     const res = await fetch(`${NEXT_URL}/api/auth/logout`, {
-      method: 'POST'
-    })
+      method: 'POST',
+    });
     if (res.ok) {
       setUserInfo({});
       setLoading(false);
@@ -223,7 +240,7 @@ const AuthContextProvider = ({ children }) => {
       setUser({});
       setSuccess(false);
       setError(null);
-      router.push('/')
+      router.push('/');
     }
   };
   return (
@@ -236,6 +253,9 @@ const AuthContextProvider = ({ children }) => {
         success,
         error,
         requestStatus,
+        image,
+        uploading,
+        uploadImage,
         login,
         registerAdmin,
         updateUserProfile,

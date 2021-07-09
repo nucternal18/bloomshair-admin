@@ -1,5 +1,6 @@
 import {  useState, useContext } from 'react';
 import { Link } from 'next/link';
+import cookie from 'cookie';
 // import { useRouter } from 'next/router';
 
 // context
