@@ -28,7 +28,7 @@ const UserListScreen = (props) => {
       actions: row['actions'],
     };
   });
-console.log(data)
+
   const [message, setMessage] = useState(null);
 
 
@@ -56,8 +56,8 @@ console.log(data)
   };
   return (
     <Layout>
-      <main className='w-full h-screen p-2 mx-auto overflow-auto'>
-        <section className='container px-2 pt-6 pb-8 mb-4 bg-white rounded shadow-xl md:mx-auto '>
+      <main className='w-full h-screen p-2 mx-auto overflow-auto bg-gray-100'>
+        <section className='container px-2 pt-6 pb-8 mt-6 mb-4 bg-white rounded shadow-2xl md:mx-auto '>
           <div className='flex items-center justify-between mb-4 border-b-4 border-current border-gray-200'>
             <div>
               <h1 className='p-5 mt-6 text-5xl font-bold'>Users</h1>

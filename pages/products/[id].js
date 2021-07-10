@@ -45,7 +45,7 @@ const ProductEditScreen = (props) => {
       _id: props.productId,
       name,
       price,
-      image,
+      image: image.url,
       brand,
       category,
       countInStock,
@@ -69,7 +69,7 @@ const ProductEditScreen = (props) => {
   return (
     <Layout>
       <main className='flex-grow w-full h-screen p-4 mx-auto mt-6 bg-gray-200'>
-        <section className='container px-2 pt-6 pb-8 mx-2 mb-4 bg-white rounded shadow-xl md:mx-auto '>
+        <section className='container px-2 pt-6 pb-8 mx-2 mb-4 bg-white rounded shadow-2xl md:mx-auto '>
           <div className='flex items-center justify-between px-4 mb-4 border-b-4 border-current border-gray-200'>
             <div className='mt-6'>
               <Button color='dark'>
@@ -79,7 +79,9 @@ const ProductEditScreen = (props) => {
               </Button>
             </div>
             <div>
-              <h1 className='p-5 mt-6 text-5xl font-bold'>Edit Product</h1>
+              <h1 className='p-5 mt-6 text-3xl font-bold md:text-5xl'>
+                Edit Product
+              </h1>
             </div>
           </div>
           <FormContainer>
@@ -88,10 +90,10 @@ const ProductEditScreen = (props) => {
             <form
               onSubmit={submitHandler}
               className='w-full px-12 pt-6 pb-8 mx-2 mb-4 bg-white sm:mx-auto'>
-              <div className='flex flex-row items-center justify-around'>
+              <div className='flex flex-col items-center justify-around md:flex-row'>
                 <div className='flex flex-col items-center mb-4'>
                   {image ? (
-                    <Image src={image} alt={name} width={70} height={70} />
+                    <Image src={image.url} alt={name} width={70} height={70} />
                   ) : (
                     <Image
                       src={props.product.image}

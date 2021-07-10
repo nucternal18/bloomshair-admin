@@ -3,27 +3,27 @@ import cookie from 'cookie';
 import { SERVER_URL } from '../../../config';
 
 export default async (req, res) => {
-  if (req.method === 'POST') {
+  if (req.method === 'DELETE') {
     if (!req.headers.cookie) {
       res.status(403).json({ message: 'Not Authorized' });
       return;
     }
-
+    const { id } = req.query;
     const { token } = cookie.parse(req.headers.cookie);
 
-    const response = await fetch(`${SERVER_URL}/api/products/`, {
-      method: 'POST',
+    const response = await fetch(`${SERVER_URL}/api/gallery/${id}`, {
+      method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    const createdProduct = await response.json();
+    const deletedImageResponse = await response.json();
 
     if (response.ok) {
-      res.status(200).json({ createdProduct });
+      res.status(200).json({ deletedImageResponse });
     } else {
-      res.status(403).json({ message: 'Unable to create product' });
+      res.status(403).json({ message: 'Unable to upload picture' });
     }
   } else {
     res.setHeader('Allow', ['POST']);

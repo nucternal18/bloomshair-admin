@@ -2,69 +2,34 @@ import { useState, createContext } from 'react';
 
 import { NEXT_URL } from '../config';
 
-export const ProductContext = createContext();
+export const GalleryContext = createContext({
+  createPicture: () => {},
+  deletePicture: () => {},
+  uploadImage: () => {},
+  success: false,
+  loading: false,
+  error: null,
+  uploading: false,
+  image: null,
+});
 
-const ProductContextProvider = ({ children }) => {
+const GalleryContextProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [image, setImage] = useState();
+  const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
 
-  const createProduct = async () => {
+  const createPicture = async (imageUrl) => {
     try {
-      setLoading(false);
+      setLoading(true);
 
-      await fetch(`${NEXT_URL}/api/products`, {
+      await fetch(`${NEXT_URL}/api/gallery`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-      });
-
-      if (response.ok) {
-        setLoading(false);
-        setSuccess(true);
-      } else {
-        setLoading(false);
-      }
-    } catch (error) {
-      setLoading(false);
-      const err =
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : 'Unable to create product';
-      setError(err);
-    }
-  };
-
-  const updateProduct = async ({
-    _id,
-    name,
-    price,
-    image,
-    brand,
-    category,
-    countInStock,
-    description,
-  }) => {
-    try {
-      setLoading(true);
-
-      await fetch(`${NEXT_URL}/api/products/${_id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          price,
-          image,
-          brand,
-          category,
-          countInStock,
-          description,
-        }),
+        body: JSON.stringify({imageUrl}),
       });
 
       setLoading(false);
@@ -74,16 +39,16 @@ const ProductContextProvider = ({ children }) => {
       const err =
         error.response && error.response.data.message
           ? error.response.data.message
-          : 'Unable to update product';
+          : 'Unable to create order';
       setError(err);
     }
   };
 
-  const deleteProduct = async (id) => {
+  const deletePicture = async (id) => {
     try {
       setLoading(true);
 
-      await fetch(`${NEXT_URL}/api/products/${id}`, {
+      await fetch(`${NEXT_URL}/api/gallery/${id}`, {
         method: 'DELETE',
       });
 
@@ -94,7 +59,7 @@ const ProductContextProvider = ({ children }) => {
       const err =
         error.response && error.response.data.message
           ? error.response.data.message
-          : 'Unable to delete product';
+          : { message: 'Unable to delete product' };
       setError(err);
     }
   };
@@ -117,23 +82,21 @@ const ProductContextProvider = ({ children }) => {
       console.error(error);
     }
   };
-
   return (
-    <ProductContext.Provider
+    <GalleryContext.Provider
       value={{
-        createProduct,
-        updateProduct,
-        deleteProduct,
+        createPicture,
+        deletePicture,
         uploadImage,
-        success,
         loading,
+        success,
+        uploading,
         error,
         image,
-        uploading,
       }}>
       {children}
-    </ProductContext.Provider>
+    </GalleryContext.Provider>
   );
 };
 
-export default ProductContextProvider;
+export default GalleryContextProvider;

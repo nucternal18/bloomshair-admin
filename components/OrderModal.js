@@ -1,66 +1,64 @@
 import { motion } from 'framer-motion';
-import  Image  from 'next/image';
-const OrderModal = ({ item, handleClose }) => {
+import Image from 'next/image';
+import styles from '../../../styles/Table.module.css';
+import Button from './Button';
+const OrderModal = ({ item, handleClose, tableData, headingColumns, show }) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className='backdrop'
+      className={
+        show
+          ? 'z-50 fixed top-0 left-0 w-full h-full bg-black bg-opacity-60 flex items-center justify-center '
+          : 'hidden'
+      }
       onClick={handleClose}>
       <div
         section
-        className='container px-2 pt-6 pb-8 mx-2 mb-4 bg-white shadow-xl md:mx-auto '>
-        <header closeButton>
-          <title>ORDERED ITEMS</title>
-        </header>
-        <body>
-          <table className='flex flex-col flex-no-wrap my-5 overflow-hidden rounded-lg table-auto sm:bg-transparent sm:shadow'>
-            <thead className='text-white'>
-              <tr className='flex flex-col w-full mb-2 bg-teal-400 rounded-l-lg flex-no wrap sm:table-row sm:rounded-none sm:mb-0'>
-                <th className='w-2/5 p-1 text-center'>ID</th>
-                <th className='w-1/5 p-1 text-center'>Image</th>
-                <th className='w-1/5 p-1 text-center'>NAME</th>
-                <th className='w-1/5 p-1 text-center'>PRICE</th>
-                <th className='w-1/5 p-1 text-center'>QTY</th>
+        className='container px-2 pt-6 pb-8 mx-2 mb-4 bg-white shadow-2xl md:mx-auto '>
+        <div className='flex items-center justify-between mb-6 border-b-4 border-current border-gray-200'>
+          <div>
+            <h1 className='p-3 text-4xl font-bold uppercase md:p-5 md:text-5xl'>
+              Order Items
+            </h1>
+          </div>
+        </div>
+
+        <div className={styles.tableContainer}>
+          <table className={styles.tableContainerTable}>
+            <thead>
+              <tr>
+                {headingColumns.map((col, index) => (
+                  <th key={index}>{col}</th>
+                ))}
               </tr>
             </thead>
-            <tbody className='fex-col md:flex-1 sm:flex-none '>
-              {item.orderItems.map((item) => (
-                <tr
-                  key={item._id}
-                  className='flex flex-col w-full mb-2 flex-no wrap sm:table-row sm:rounded-none sm:mb-0'>
-                  <td className='w-2/5 p-3 border border-grey-light hover:bg-gray-100'>
-                    {item.product}
-                  </td>
-                  <td className='w-1/5 p-3 border border-grey-light hover:bg-gray-100'>
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      width={50}
-                      height={50}
-                    />
-                  </td>
-                  <td className='w-1/5 p-3 border border-grey-light hover:bg-gray-100'>
-                    {item.name}
-                  </td>
-                  <td className='w-1/5 p-3 border border-grey-light hover:bg-gray-100'>
-                    £{item.price}
-                  </td>
-                  <td className='w-1/5 p-3 border border-grey-light hover:bg-gray-100'>
-                    {item.qty}
-                  </td>
-                </tr>
-              ))}
+            <tbody>
+              {tableData.map((row) => {
+                return (
+                  <tr key={row._id}>
+                    <td data-heading={'product'}>{row.product}</td>
+                    <td data-heading={'image'}>
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        width={50}
+                        height={50}
+                      />
+                    </td>
+                    <td data-heading={'price'}>£{item.price}</td>
+                    <td data-heading={'qty'}>{item.qty}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
-        </body>
-        <footer>
-          <button
-            className='w-full px-2 py-2 mb-4 font-bold text-blue-400 bg-transparent border border-blue-400 hover:bg-blue-700 focus:outline-none focus:shadow-outline hover:text-white'
-            onClick={handleClose}>
+        </div>
+        <div className='px-4 mb-4'>
+          <Button color='dark' onClick={handleClose}>
             Close
-          </button>
-        </footer>
+          </Button>
+        </div>
       </div>
     </motion.div>
   );

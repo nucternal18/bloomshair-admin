@@ -18,9 +18,10 @@ export default async (req, res) => {
         body: JSON.stringify({ data }),
       });
 
-      const urlData = await response.json();
+      const url = await response.json();
+
       if (response.ok) {
-        res.status(201).json({ urlData });
+        res.status(201).json({ url });
       } else {
         res.status(403).json({ message: 'Image not uploaded' });
       }
