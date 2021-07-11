@@ -1,9 +1,14 @@
 import { useState, useEffect, useContext } from 'react';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import cookie from 'cookie';
 import { FaPlusCircle } from 'react-icons/fa';
+import { EditorState } from 'draft-js';
+
+
+
 
 //components
 import Spinner from '../../components/Spinner';
@@ -11,6 +16,7 @@ import ErrorMessage from '../../components/ErrorMessage';
 import FormContainer from '../../components/FormContainer';
 import Button from '../../components/Button';
 import Layout from '../../components/Layout';
+import TextEditor from '../../components/Editor';
 
 //Context
 import { ProductContext } from '../../context/productContext';
@@ -29,7 +35,10 @@ const ProductEditScreen = (props) => {
   const [brand, setBrand] = useState(props.product.brand);
   const [category, setCategory] = useState(props.product.category);
   const [countInStock, setCountInStock] = useState(props.product.countInStock);
-  const [description, setDescription] = useState(props.product.description);
+  // const [description, setDescription] = useState(props.product.description);
+  const [editorState, setEditorState] = useState(() =>
+    EditorState.createEmpty()
+  );
 
   useEffect(() => {
     if (success) {
@@ -49,7 +58,7 @@ const ProductEditScreen = (props) => {
       brand,
       category,
       countInStock,
-      description,
+      description: editorState,
     });
     router.push('/products');
   };
@@ -68,8 +77,8 @@ const ProductEditScreen = (props) => {
 
   return (
     <Layout>
-      <main className='flex-grow w-full h-screen p-4 mx-auto mt-6 bg-gray-200'>
-        <section className='container px-2 pt-6 pb-8 mx-2 mb-4 bg-white rounded shadow-2xl md:mx-auto '>
+      <main className='w-full h-screen p-4 mx-auto overflow-auto bg-gray-200'>
+        <section className='container px-2 pt-6 pb-8 mx-2 mt-6 mb-4 bg-white rounded shadow-2xl md:mx-auto '>
           <div className='flex items-center justify-between px-4 mb-4 border-b-4 border-current border-gray-200'>
             <div className='mt-6'>
               <Button color='dark'>
@@ -91,15 +100,15 @@ const ProductEditScreen = (props) => {
               onSubmit={submitHandler}
               className='w-full px-12 pt-6 pb-8 mx-2 mb-4 bg-white sm:mx-auto'>
               <div className='flex flex-col items-center justify-around md:flex-row'>
-                <div className='flex flex-col items-center mb-4'>
+                <div className='flex flex-col items-center w-full mb-4'>
                   {image ? (
                     <Image src={image.url} alt={name} width={70} height={70} />
                   ) : (
                     <Image
                       src={props.product.image}
                       alt={name}
-                      width={400}
-                      height={400}
+                      width={250}
+                      height={250}
                     />
                   )}
                   <label className='block mb-2 mr-2 text-base font-bold text-gray-700'>
@@ -113,64 +122,64 @@ const ProductEditScreen = (props) => {
                     {error && <div className='justify-center'>{error}</div>}
                   </label>
                 </div>
-                <div>
-                  <div className='flex items-center mb-4'>
-                    <label className='block mb-2 mr-2 text-base font-bold text-gray-700'>
+                <div className='w-full'>
+                  <div className='flex flex-col w-full mb-4'>
+                    <label className='block mb-1 mr-2 text-base font-bold text-gray-700'>
                       Name
                     </label>
                     <input
-                      className='w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow-md appearance-none focus:outline-none '
+                      className='w-full px-3 py-2 leading-tight text-gray-500 border rounded shadow-md appearance-none focus:outline-none '
                       type='name'
                       placeholder='Enter your name'
                       value={name}
                       onChange={(e) => setName(e.target.value)}></input>
                   </div>
-                  <div className='flex items-center mb-4'>
-                    <label className='block mb-2 mr-2 text-base font-bold text-gray-700'>
+                  <div className='flex flex-col mb-4'>
+                    <label className='block mb-1 mr-2 text-base font-bold text-gray-700'>
                       Price
                     </label>
                     <input
-                      className='w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow-md appearance-none focus:outline-none '
+                      className='w-full px-3 py-2 leading-tight text-gray-500 border rounded shadow-md appearance-none focus:outline-none '
                       type='number'
                       placeholder='Enter Price'
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}></input>
                   </div>
 
-                  <div className='flex items-center mb-4'>
-                    <label className='block mb-2 mr-2 text-base font-bold text-gray-700'>
+                  <div className='flex flex-col mb-4'>
+                    <label className='block mb-1 mr-2 text-base font-bold text-gray-700'>
                       Brand
                     </label>
                     <input
-                      className='w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow-md appearance-none focus:outline-none '
+                      className='w-full px-3 py-2 leading-tight text-gray-500 border rounded shadow-md appearance-none focus:outline-none '
                       type='text'
                       placeholder='Enter Brand'
                       value={brand}
                       onChange={(e) => setBrand(e.target.value)}></input>
                   </div>
-                  <div className='flex items-center mb-4'>
-                    <label className='block mb-2 mr-2 text-base font-bold text-gray-700'>
+                  <div className='flex flex-col mb-4'>
+                    <label className='block mb-1 mr-2 text-base font-bold text-gray-700'>
                       Category
                     </label>
                     <input
-                      className='w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow-md appearance-none focus:outline-none '
+                      className='w-full px-3 py-2 leading-tight text-gray-500 border rounded shadow-md appearance-none focus:outline-none '
                       type='text'
                       placeholder='Enter Category'
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}></input>
                   </div>
-                  <div className='flex items-center mb-4'>
-                    <label className='block mb-2 mr-2 text-base font-bold text-gray-700'>
+                  <div className='flex flex-col mb-4'>
+                    <label className='block mb-1 mr-2 text-base font-bold text-gray-700'>
                       Count In Stock
                     </label>
                     <input
-                      className='w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow-md appearance-none focus:outline-none '
+                      className='w-full px-3 py-2 leading-tight text-gray-500 border rounded shadow-md appearance-none focus:outline-none '
                       type='text'
                       placeholder='Enter Count In Stock'
                       value={countInStock}
                       onChange={(e) => setCountInStock(e.target.value)}></input>
                   </div>
-                  <div className='flex items-center mb-4'>
+                  {/* <div className='flex flex-col mb-4'>
                     <label className='block mb-2 mr-2 text-base font-bold text-gray-700'>
                       Description
                     </label>
@@ -180,9 +189,10 @@ const ProductEditScreen = (props) => {
                       placeholder='Enter Description'
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}></input>
-                  </div>
+                  </div> */}
                 </div>
               </div>
+              <TextEditor editorState={editorState} onChange={setEditorState} />
               <div className='flex items-center justify-center px-4 pt-4 mb-4 border-t-4 border-current border-gray-200'>
                 <Button type='submit' color='dark'>
                   <p className='text-3xl font-semibold'>Update</p>
