@@ -1,14 +1,11 @@
 import { useState, useEffect, useContext } from 'react';
-
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import cookie from 'cookie';
 import { FaPlusCircle } from 'react-icons/fa';
-import { EditorState } from 'draft-js';
-
-
-
+import { EditorState,  ContentState } from 'draft-js';
+import { convertToHTML } from 'draft-convert';
 
 //components
 import Spinner from '../../components/Spinner';
@@ -26,25 +23,44 @@ import { SERVER_URL } from '../../config';
 
 const ProductEditScreen = (props) => {
   const router = useRouter();
-  const { loading, error, success, uploadImage, uploading, image, updateProduct } =
-    useContext(ProductContext);
+  const {
+    loading,
+    error,
+    success,
+    uploadImage,
+    uploading,
+    image,
+    updateProduct,
+  } = useContext(ProductContext);
 
   const [name, setName] = useState(props.product.name);
   const [price, setPrice] = useState(props.product.price);
-
   const [brand, setBrand] = useState(props.product.brand);
   const [category, setCategory] = useState(props.product.category);
   const [countInStock, setCountInStock] = useState(props.product.countInStock);
-  // const [description, setDescription] = useState(props.product.description);
-  const [editorState, setEditorState] = useState(() =>
-    EditorState.createEmpty()
-  );
 
+  const [editorState, setEditorState] = useState(
+    props.product.description
+      ? EditorState.createWithContent(ContentState.createFromText(props.product.description))
+      : EditorState.createEmpty()
+  );
+  const [convertedContent, setConvertedContent] = useState(null);
+  const handleEditorChange = (state) => {
+    setEditorState(state);
+    convertContentToHTML();
+  };
+  const convertContentToHTML = () => {
+    let currentContentAsHTML = JSON.stringify(
+      convertToHTML(editorState.getCurrentContent())
+    );
+    setConvertedContent(currentContentAsHTML);
+  };
+  
   useEffect(() => {
     if (success) {
       router.push('/products');
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success]);
 
   const submitHandler = (e) => {
@@ -54,11 +70,11 @@ const ProductEditScreen = (props) => {
       _id: props.productId,
       name,
       price,
-      image: image.url,
+      image: image ? image.url : props.product.image,
       brand,
       category,
       countInStock,
-      description: editorState,
+      description: convertedContent,
     });
     router.push('/products');
   };
@@ -179,20 +195,12 @@ const ProductEditScreen = (props) => {
                       value={countInStock}
                       onChange={(e) => setCountInStock(e.target.value)}></input>
                   </div>
-                  {/* <div className='flex flex-col mb-4'>
-                    <label className='block mb-2 mr-2 text-base font-bold text-gray-700'>
-                      Description
-                    </label>
-                    <input
-                      className='w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow-md appearance-none focus:outline-none '
-                      type='text'
-                      placeholder='Enter Description'
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}></input>
-                  </div> */}
                 </div>
               </div>
-              <TextEditor editorState={editorState} onChange={setEditorState} />
+              <TextEditor
+                editorState={editorState}
+                handleEditorChange={handleEditorChange}
+              />
               <div className='flex items-center justify-center px-4 pt-4 mb-4 border-t-4 border-current border-gray-200'>
                 <Button type='submit' color='dark'>
                   <p className='text-3xl font-semibold'>Update</p>

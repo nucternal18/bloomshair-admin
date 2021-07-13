@@ -6,6 +6,7 @@ const Layout = ({ children, title }) => {
     <div className='flex flex-col justify-between h-screen'>
       <Head>
         <link rel='icon' href='/favicon.ico' />
+        <meta charSet='utf-8' />
         <meta name='description' content='Blooms Hair admin site' />
         <meta name='og:title' content={title} />
         <meta name='twitter:card' content='summary_large_image' />

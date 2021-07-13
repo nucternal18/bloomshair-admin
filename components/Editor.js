@@ -10,18 +10,18 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
 
 
-function TextEditor({editorState, setEditorState}) {
-    return (
-      <div>
-        <Editor
-          editorState={editorState}
-          onChange={setEditorState}
-          wrapperClassName='p-4 border-2 border-gray-200'
-          editorClassName='bg-gray-100 p-4 border-2 border-gray-200'
-          toolbarClassName='border-2 border-gray-200'
-        />
-      </div>
-    );
+function TextEditor({ editorState, handleEditorChange }) {
+  return (
+    <div>
+      <Editor
+        editorState={editorState}
+        onEditorStateChange={handleEditorChange}
+        wrapperClassName='p-4 border-2 border-gray-200'
+        editorClassName='bg-gray-100 p-4 border-2 border-gray-200'
+        toolbarClassName='border-2 border-gray-200'
+      />
+    </div>
+  );
 }
 
 export default TextEditor;
