@@ -1,23 +1,30 @@
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import cookie from 'cookie';
+import { useRouter } from 'next/router';
 
+// Components
 import Spinner from '../../components/Spinner';
 import ErrorMessage from '../../components/ErrorMessage';
 import Paginate from '../../components/Paginate';
 import Layout from '../../components/Layout';
 import Button from '../../components/Button';
 import Table from '../../components/Tables/ProductTable';
+import Notification from '../../components/notification/notification';
 
+// Context
 import { ProductContext } from '../../context/productContext';
 
 import { SERVER_URL } from '../../config';
 
 const Products = (props) => {
-  const { loading, error, deleteProduct, createProduct } =
+  const { products } = props
+  const router = useRouter();
+  const {  error, deleteProduct, createProduct, message, requestStatus } =
     useContext(ProductContext);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const data = props.products.map((row) => {
+  const data = products.map((row) => {
     return {
       id: row['_id'],
       image: row['image'],
@@ -30,15 +37,43 @@ const Products = (props) => {
     };
   });
 
+   useEffect(() => {
+     setIsRefreshing(false);
+   }, [data]);
+  
+    const refreshData = () => {
+      router.replace(router.asPath);
+      setIsRefreshing(true);
+    };
+
   const deleteHandler = (id) => {
     if (window.confirm('Are you sure?')) {
       // DELETE Products
       deleteProduct(id);
+      refreshData()
     }
   };
+  
   const createProductHandler = () => {
     createProduct();
+    refreshData();
   };
+
+  let notification;
+  if (requestStatus === 'success') {
+    notification = {
+      status: 'success',
+      title: 'Success!',
+      message: message,
+    };
+  }
+  if (requestStatus === 'error') {
+    notification = {
+      status: 'error',
+      title: 'Error!',
+      message: error,
+    };
+  }
 
   return (
     <Layout>
@@ -57,7 +92,7 @@ const Products = (props) => {
             </div>
           </div>
           <div>
-            {loading ? (
+            {isRefreshing ? (
               <Spinner />
             ) : error ? (
               <ErrorMessage variant='danger'>{error}</ErrorMessage>
@@ -87,6 +122,13 @@ const Products = (props) => {
             )}
           </div>
         </section>
+        {notification && (
+          <Notification
+            status={notification.status}
+            title={notification.title}
+            message={notification.message}
+          />
+        )}
       </main>
     </Layout>
   );

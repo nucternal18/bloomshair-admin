@@ -1,23 +1,25 @@
 import { useContext, useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import cookie from 'cookie';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 
+// Components
 import Layout from '../../components/Layout';
 import Button from '../../components/Button';
-
 import Notification from '../../components/notification/notification';
 import Table from '../../components/Tables/UserTable';
+import Spinner from '../../components/Spinner';
 
 // context
 import { AuthContext } from '../../context/AuthContext';
 
 import { SERVER_URL } from '../../config';
-import Link from 'next/link';
 
 const UserListScreen = (props) => {
-  const { error, deleteUser, requestStatus } =
-    useContext(AuthContext);
-
+  const router = useRouter();
+  const { error, deleteUser, requestStatus, message } = useContext(AuthContext);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const data = props.users.map((row) => {
     return {
       id: row['_id'],
@@ -28,9 +30,14 @@ const UserListScreen = (props) => {
       actions: row['actions'],
     };
   });
+  useEffect(() => {
+    setIsRefreshing(false);
+  }, [data]);
 
-  const [message, setMessage] = useState(null);
-
+  const refreshData = () => {
+    router.replace(router.asPath);
+    setIsRefreshing(true);
+  };
 
   let notification;
   if (requestStatus === 'success') {
@@ -51,7 +58,7 @@ const UserListScreen = (props) => {
   const deleteHandler = (id) => {
     if (window.confirm('Are you sure?')) {
       deleteUser(id);
-      setMessage('User deleted successfully')
+      refreshData();
     }
   };
   return (
@@ -72,20 +79,24 @@ const UserListScreen = (props) => {
               </Button>
             </div>
           </div>
-          <div className='overflow-hidden'>
-            <Table
-              tableData={data}
-              headingColumns={[
-                'ID',
-                'IMAGE',
-                'NAME',
-                'EMAIL',
-                'ADMIN',
-                'ACTION',
-              ]}
-              deleteHandler={deleteHandler}
-            />
-          </div>
+          {isRefreshing ? (
+            <Spinner />
+          ) : (
+            <div className='overflow-hidden'>
+              <Table
+                tableData={data}
+                headingColumns={[
+                  'ID',
+                  'IMAGE',
+                  'NAME',
+                  'EMAIL',
+                  'ADMIN',
+                  'ACTION',
+                ]}
+                deleteHandler={deleteHandler}
+              />
+            </div>
+          )}
         </section>
         {notification && (
           <Notification

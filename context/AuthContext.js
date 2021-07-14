@@ -15,6 +15,7 @@ const AuthContextProvider = ({ children }) => {
   const [requestStatus, setRequestStatus] = useState('');
   const [image, setImage] = useState();
   const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState(null);
 
   const router = useRouter();
 
@@ -54,11 +55,15 @@ const AuthContextProvider = ({ children }) => {
         router.push('/dashboard');
       } else {
         setRequestStatus('error');
+        setMessage(
+          'Unable to login. Please check your login credentials and try again'
+        );
         setError(data.message);
         setError(null);
       }
     } catch (error) {
       setRequestStatus('error');
+      setMessage('Unable to login. Please check your login credentials and try again');
       setLoading(false);
       const err =
         error.response && error.response.data.message
@@ -91,16 +96,19 @@ const AuthContextProvider = ({ children }) => {
       if (res.ok) {
         setLoading(false);
         setRequestStatus('success');
+        setMessage('User registered successfully');
         setUserInfo(data);
         router.push('/dashboard');
       } else {
         setRequestStatus('error');
+        setMessage('Unable to register user');
         setError(data.message);
         setError(null);
       }
     } catch (error) {
       setLoading(false);
       setRequestStatus('error');
+      setMessage('Unable to register user');
       const err =
         error.response && error.response.data.message
           ? error.response.data.message
@@ -139,14 +147,17 @@ const AuthContextProvider = ({ children }) => {
       if (res.ok) {
         setLoading(false);
         setRequestStatus('success');
+        setMessage('Profile updated successfully');
         setUserInfo(data);
       } else {
         setRequestStatus('error');
+        setMessage('Unable to update user profile');
         setError(data.message);
         setError(null);
       }
     } catch (error) {
       setLoading(false);
+      setMessage('Unable to update user profile');
       const err =
         error.response && error.response.data.message
           ? error.response.data.message
@@ -166,8 +177,10 @@ const AuthContextProvider = ({ children }) => {
 
       setLoading(false);
       setRequestStatus('success');
+      setMessage('User deleted successfully');
     } catch (error) {
       setLoading(false);
+      setMessage('Unable to delete user');
       const err =
         error.response && error.response.data.message
           ? error.response.data.message
@@ -193,14 +206,17 @@ const AuthContextProvider = ({ children }) => {
       if (res.ok) {
         setLoading(false);
         setRequestStatus('success');
+        setMessage('User edited successfully');
         setUser(data);
       } else {
         setRequestStatus('error');
+        setMessage('Failed to edit user');
         setError(data.message);
         setError(null);
       }
     } catch (error) {
       setLoading(false);
+      setMessage('Failed to edit user');
       const err =
         error.response && error.response.data.message
           ? error.response.data.message
@@ -221,9 +237,13 @@ const AuthContextProvider = ({ children }) => {
         body: JSON.stringify({ data: base64EncodedImage }),
       });
       const data = await response.json();
+      setRequestStatus('success');
       setImage(data.url);
+      setMessage('Image uploaded successfully');
       setUploading(false);
     } catch (error) {
+      setRequestStatus('error');
+      setMessage('Failed to upload image');
       console.error(error);
     }
   };
@@ -255,6 +275,7 @@ const AuthContextProvider = ({ children }) => {
         requestStatus,
         image,
         uploading,
+        message,
         uploadImage,
         login,
         registerAdmin,
@@ -262,6 +283,7 @@ const AuthContextProvider = ({ children }) => {
         deleteUser,
         editUser,
         logout,
+        setMessage
       }}>
       {children}
     </AuthContext.Provider>

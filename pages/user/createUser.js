@@ -17,9 +17,8 @@ function CreateUser() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
-  const [message, setMessage] = useState(null);
 
-  const { error, requestStatus, registerAdmin } = useContext(AuthContext);
+  const { error, requestStatus, registerAdmin, message, setMessage } = useContext(AuthContext);
 
   const submitHandler = (e) => {
     e.preventDefault();

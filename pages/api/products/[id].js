@@ -56,7 +56,7 @@ export default async (req, res) => {
 
     const { token } = cookie.parse(req.headers.cookie);
 
-    await fetch(`${SERVER_URL}/api/users/${id}`, {
+    await fetch(`${SERVER_URL}/api/products/${id}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,

@@ -19,6 +19,8 @@ const GalleryContextProvider = ({ children }) => {
   const [success, setSuccess] = useState(false);
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState(null);
+  const [requestStatus, setRequestStatus] = useState('');
 
   const createPicture = async (imageUrl) => {
     try {
@@ -34,8 +36,11 @@ const GalleryContextProvider = ({ children }) => {
 
       setLoading(false);
       setSuccess(true);
+      setRequestStatus('success');
+      setMessage('Picture created successfully');
     } catch (error) {
       setLoading(false);
+      setRequestStatus('error');
       const err =
         error.response && error.response.data.message
           ? error.response.data.message
@@ -54,12 +59,15 @@ const GalleryContextProvider = ({ children }) => {
 
       setLoading(false);
       setSuccess(true);
+      setRequestStatus('success');
+      setMessage('Picture deleted successfully');
     } catch (error) {
       setLoading(false);
+      setRequestStatus('error');
       const err =
         error.response && error.response.data.message
           ? error.response.data.message
-          : { message: 'Unable to delete product' };
+          :  'Unable to delete product' ;
       setError(err);
     }
   };
@@ -76,6 +84,8 @@ const GalleryContextProvider = ({ children }) => {
         body: JSON.stringify({ data: base64EncodedImage }),
       });
       const data = await response.json();
+      setRequestStatus('success');
+      setMessage('Image uploaded successfully');
       setImage(data.url);
       setUploading(false);
     } catch (error) {
@@ -88,6 +98,8 @@ const GalleryContextProvider = ({ children }) => {
         createPicture,
         deletePicture,
         uploadImage,
+        requestStatus,
+        message,
         loading,
         success,
         uploading,

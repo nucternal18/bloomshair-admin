@@ -1,4 +1,4 @@
-import { useState, createContext } from 'react';
+import { useState, createContext, useEffect } from 'react';
 
 import { NEXT_URL } from '../config';
 
@@ -14,6 +14,19 @@ const OrderContextProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [message, setMessage] = useState(null);
+  const [requestStatus, setRequestStatus] = useState('');
+
+  useEffect(() => {
+    if (requestStatus === 'success' || requestStatus === 'error') {
+      const timer = setTimeout(() => {
+        setRequestStatus(null);
+        setError(null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [requestStatus]);
 
   const createOrder = async (order) => {
     try {
@@ -24,13 +37,16 @@ const OrderContextProvider = ({ children }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(order),
+        body: JSON.stringify({order}),
       });
 
       setLoading(false);
       setSuccess(true);
+      setRequestStatus('success');
+      setMessage('Order created successfully');
     } catch (error) {
       setLoading(false);
+      setRequestStatus('error');
       const err =
         error.response && error.response.data.message
           ? error.response.data.message
@@ -38,32 +54,6 @@ const OrderContextProvider = ({ children }) => {
       setError(err);
     }
   };
-
-  // const getOrderDetails = async (id) => {
-  //   try {
-  //     setLoading(true);
-
-  //     const userInfo = parseCookies(null, 'userInfo');
-
-  //     const config = {
-  //       headers: {
-  //         Authorization: `Bearer ${userInfo.token}`,
-  //       },
-  //     };
-
-  //     const { data } = await axios.get(`${NEXT_URL}/api/orders/${id}`);
-
-  //     setLoading(false);
-  //     setOrder(data);
-  //   } catch (error) {
-  //     setLoading(false);
-  //     const err =
-  //       error.response && error.response.data.message
-  //         ? error.response.data.message
-  //         : { message: 'Unable to fetch order details' };
-  //     setError(err);
-  //   }
-  // };
 
   // const payOrder = async (orderId, paymentResult) => {
   //   try {
@@ -101,7 +91,7 @@ const OrderContextProvider = ({ children }) => {
       setLoading(true);
 
       await fetch(
-        `${API_URL}/api/orders/${order._id}/deliver`,
+        `${NEXT_URL}/api/orders/${order._id}`,
         {
           method: 'PUT',
           headers: {
@@ -112,8 +102,11 @@ const OrderContextProvider = ({ children }) => {
 
       setLoading(false);
       setSuccess(true);
+      setRequestStatus('success');
+      setMessage('Order delivery status updated successfully');
     } catch (error) {
       setLoading(false);
+      setRequestStatus('error');
       const err =
         error.response && error.response.data.message
           ? error.response.data.message
@@ -126,6 +119,8 @@ const OrderContextProvider = ({ children }) => {
       value={{
         createOrder,
         orderDelivery,
+        requestStatus,
+        message,
         success,
         loading,
         error,

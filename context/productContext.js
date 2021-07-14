@@ -1,4 +1,4 @@
-import { useState, createContext } from 'react';
+import { useState, createContext, useEffect } from 'react';
 
 import { NEXT_URL } from '../config';
 
@@ -10,12 +10,26 @@ const ProductContextProvider = ({ children }) => {
   const [success, setSuccess] = useState(false);
   const [image, setImage] = useState();
   const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState(null);
+  const [requestStatus, setRequestStatus] = useState('');
+
+  useEffect(() => {
+    if (requestStatus === 'success' || requestStatus === 'error') {
+      const timer = setTimeout(() => {
+        setRequestStatus(null);
+        setError(null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [requestStatus]);
+
 
   const createProduct = async () => {
     try {
       setLoading(false);
 
-      await fetch(`${NEXT_URL}/api/products`, {
+      const response = await fetch(`${NEXT_URL}/api/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -24,12 +38,17 @@ const ProductContextProvider = ({ children }) => {
 
       if (response.ok) {
         setLoading(false);
+        setRequestStatus('success');
+        setMessage('Product created successfully');
         setSuccess(true);
       } else {
         setLoading(false);
+        setRequestStatus('error');
+        setMessage('Unable to create product');
       }
     } catch (error) {
       setLoading(false);
+      setRequestStatus('error');
       const err =
         error.response && error.response.data.message
           ? error.response.data.message
@@ -69,8 +88,11 @@ const ProductContextProvider = ({ children }) => {
 
       setLoading(false);
       setSuccess(true);
+      setRequestStatus('success');
+      setMessage('Product updated successfully');
     } catch (error) {
       setLoading(false);
+      setRequestStatus('error');
       const err =
         error.response && error.response.data.message
           ? error.response.data.message
@@ -89,8 +111,11 @@ const ProductContextProvider = ({ children }) => {
 
       setLoading(false);
       setSuccess(true);
+      setRequestStatus('success');
+      setMessage('Product deleted successfully');
     } catch (error) {
       setLoading(false);
+      setRequestStatus('error');
       const err =
         error.response && error.response.data.message
           ? error.response.data.message
@@ -111,9 +136,12 @@ const ProductContextProvider = ({ children }) => {
         body: JSON.stringify({ data: base64EncodedImage }),
       });
       const data = await response.json();
+      setRequestStatus('success');
+      setMessage('Image uploaded successfully');
       setImage(data.url);
       setUploading(false);
     } catch (error) {
+      setRequestStatus('error');
       console.error(error);
     }
   };
@@ -125,6 +153,8 @@ const ProductContextProvider = ({ children }) => {
         updateProduct,
         deleteProduct,
         uploadImage,
+        requestStatus,
+        message,
         success,
         loading,
         error,

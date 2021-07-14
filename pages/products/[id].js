@@ -1,10 +1,9 @@
 import { useState, useEffect, useContext } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import cookie from 'cookie';
 import { FaPlusCircle } from 'react-icons/fa';
-import { EditorState,  ContentState } from 'draft-js';
+import { EditorState, ContentState } from 'draft-js';
 import { convertToHTML } from 'draft-convert';
 
 //components
@@ -41,7 +40,9 @@ const ProductEditScreen = (props) => {
 
   const [editorState, setEditorState] = useState(
     props.product.description
-      ? EditorState.createWithContent(ContentState.createFromText(props.product.description))
+      ? EditorState.createWithContent(
+          ContentState.createFromText(props.product.description)
+        )
       : EditorState.createEmpty()
   );
   const [convertedContent, setConvertedContent] = useState(null);
@@ -55,7 +56,7 @@ const ProductEditScreen = (props) => {
     );
     setConvertedContent(currentContentAsHTML);
   };
-  
+
   useEffect(() => {
     if (success) {
       router.push('/products');
@@ -97,10 +98,8 @@ const ProductEditScreen = (props) => {
         <section className='container px-2 pt-6 pb-8 mx-2 mt-6 mb-4 bg-white rounded shadow-2xl md:mx-auto '>
           <div className='flex items-center justify-between px-4 mb-4 border-b-4 border-current border-gray-200'>
             <div className='mt-6'>
-              <Button color='dark'>
-                <Link href='/user'>
-                  <a>Go Back</a>
-                </Link>
+              <Button color='dark' onClick={() => router.back()}>
+                Go Back
               </Button>
             </div>
             <div>

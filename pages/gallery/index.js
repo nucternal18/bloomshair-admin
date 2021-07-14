@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import Image from 'next/image';
 import cookie from 'cookie';
 import { useRouter } from 'next/router';
@@ -6,7 +6,7 @@ import { FaPlusCircle } from 'react-icons/fa';
 
 // Components
 import Table from '../../components/Tables/GalleryTable';
-
+import Notification from '../../components/notification/notification';
 import Spinner from '../../components/Spinner';
 import ErrorMessage from '../../components/ErrorMessage';
 import Layout from '../../components/Layout';
@@ -19,17 +19,31 @@ import { GalleryContext } from '../../context/GalleryContext';
 import { SERVER_URL } from '../../config';
 
 const GalleryListScreen = (props) => {
+  const { pictures } = props;
   const router = useRouter();
   const {
     deletePicture,
     uploadImage,
     createPicture,
-    loading,
     error,
     uploading,
     image,
+    message,
+    requestStatus
   } = useContext(GalleryContext);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
+  useEffect(() => {
+    setIsRefreshing(false);
+  }, [pictures]);
+
+  // reload page page without add history to the browser history stack
+  const refreshData = () => {
+    router.replace(router.asPath);
+    setIsRefreshing(true);
+  };
+  
+  
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -44,12 +58,28 @@ const GalleryListScreen = (props) => {
   const submitHandler = (e) => {
     e.preventDefault();
     createPicture(image.url);
-    router.reload();
+    refreshData();
   };
   const deleteHandler = (id) => {
     deletePicture(id);
-    router.reload();
+    refreshData();
   };
+
+  let notification;
+  if (requestStatus === 'success') {
+    notification = {
+      status: 'success',
+      title: 'Success!',
+      message: message,
+    };
+  }
+  if (requestStatus === 'error') {
+    notification = {
+      status: 'error',
+      title: 'Error!',
+      message: error,
+    };
+  }
   return (
     <Layout>
       <main className='w-full h-screen p-2 mx-auto bg-gray-200'>
@@ -99,14 +129,14 @@ const GalleryListScreen = (props) => {
               </div>
             </div>
             <div>
-              {loading ? (
+              {isRefreshing ? (
                 <Spinner />
               ) : error ? (
                 <ErrorMessage variant='danger'>{error}</ErrorMessage>
               ) : (
                 <div className='w-full mx-auto overscroll-auto'>
                   <Table
-                    tableData={props.pictures}
+                    tableData={pictures}
                     headingColumns={['ID', 'IMAGE', 'CREATED AT', 'ACTIONS']}
                     deleteHandler={deleteHandler}
                   />
@@ -115,6 +145,13 @@ const GalleryListScreen = (props) => {
             </div>
           </div>
         </section>
+        {notification && (
+          <Notification
+            status={notification.status}
+            title={notification.title}
+            message={notification.message}
+          />
+        )}
       </main>
     </Layout>
   );

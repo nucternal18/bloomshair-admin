@@ -7,24 +7,42 @@ import { FaPlus } from 'react-icons/fa';
 // context
 import { OrderContext } from '../../context/orderContext';
 
+// Component
 import Spinner from '../../components/Spinner';
 import ErrorMessage from '../../components/ErrorMessage';
 // import Paginate from '../../components/Paginate';
 import Layout from '../../components/Layout';
 import Button from '../../components/Button';
 import Table from '../../components/Tables/ProductTable';
+import Notification from '../../components/notification/notification';
 
 import { SERVER_URL } from '../../config';
 
 const OrderListScreen = (props) => {
   // const router = useRouter();
 
-  const { loading, error } = useContext(OrderContext);
+  const { loading, error, message, requestStatus } = useContext(OrderContext);
 
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+  let notification;
+  if (requestStatus === 'success') {
+    notification = {
+      status: 'success',
+      title: 'Success!',
+      message: message,
+    };
+  }
+  if (requestStatus === 'error') {
+    notification = {
+      status: 'error',
+      title: 'Error!',
+      message: error,
+    };
+  }
 
   return (
     <Layout>
@@ -71,6 +89,13 @@ const OrderListScreen = (props) => {
             )}
           </div>
         </section>
+        {notification && (
+          <Notification
+            status={notification.status}
+            title={notification.title}
+            message={notification.message}
+          />
+        )}
       </main>
     </Layout>
   );
