@@ -114,7 +114,7 @@ const Sidebar = () => {
               </li>
 
               <li className='flex flex-row items-center'>
-                <ActiveLink href='/user'>
+                <ActiveLink href='/users'>
                   <FaUserCircle className='mr-2 text-sm' />
                   Manage Users
                 </ActiveLink>

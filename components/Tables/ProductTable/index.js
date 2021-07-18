@@ -27,10 +27,11 @@ const Table = ({ tableData, headingColumns, deleteHandler }) => {
                     width={50}
                     height={50}
                     className='rounded-sm'
+                    objectFit='cover'
                   />
                 </td>
                 <td data-heading={'name'}>{row.name}</td>
-                <td data-heading={'price'}>{row.price}</td>
+                <td data-heading={'price'}>£{row.price.toFixed(2)}</td>
                 <td data-heading={'category'}>{row.category}</td>
                 <td data-heading={'brand'}>{row.brand}</td>
                 <td data-heading={'countInStock'}>{row.countInStock}</td>

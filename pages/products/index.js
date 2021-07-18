@@ -18,9 +18,9 @@ import { ProductContext } from '../../context/productContext';
 import { SERVER_URL } from '../../config';
 
 const Products = (props) => {
-  const { products } = props
+  const { products } = props;
   const router = useRouter();
-  const {  error, deleteProduct, createProduct, message, requestStatus } =
+  const { error, deleteProduct, createProduct, message, requestStatus } =
     useContext(ProductContext);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -37,23 +37,23 @@ const Products = (props) => {
     };
   });
 
-   useEffect(() => {
-     setIsRefreshing(false);
-   }, [data]);
-  
-    const refreshData = () => {
-      router.replace(router.asPath);
-      setIsRefreshing(true);
-    };
+  useEffect(() => {
+    setIsRefreshing(false);
+  }, [data]);
+
+  const refreshData = () => {
+    router.replace(router.asPath);
+    setIsRefreshing(true);
+  };
 
   const deleteHandler = (id) => {
     if (window.confirm('Are you sure?')) {
       // DELETE Products
       deleteProduct(id);
-      refreshData()
+      refreshData();
     }
   };
-  
+
   const createProductHandler = () => {
     createProduct();
     refreshData();

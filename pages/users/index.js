@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import cookie from 'cookie';
 import { useRouter } from 'next/router';

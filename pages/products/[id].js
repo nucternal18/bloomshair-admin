@@ -117,7 +117,7 @@ const ProductEditScreen = (props) => {
               <div className='flex flex-col items-center justify-around md:flex-row'>
                 <div className='flex flex-col items-center w-full mb-4'>
                   {image ? (
-                    <Image src={image.url} alt={name} width={70} height={70} />
+                    <Image src={image.url} alt={name} width={450} height={350} />
                   ) : (
                     <Image
                       src={props.product.image}
@@ -126,7 +126,7 @@ const ProductEditScreen = (props) => {
                       height={250}
                     />
                   )}
-                  <label className='block mb-2 mr-2 text-base font-bold text-gray-700'>
+                  <label className='block py-2 my-2 mr-2 text-base font-bold text-gray-700'>
                     <FaPlusCircle className='text-4xl' />
                     <input
                       type='file'
